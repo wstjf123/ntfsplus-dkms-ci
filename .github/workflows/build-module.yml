@@ -55,10 +55,10 @@ jobs:
         run: |
           set -euo pipefail
           KVER='${{ matrix.kernel }}'
-          make -C "linux-${KVER}" \
-            M="$GITHUB_WORKSPACE/out-of-tree" \
+          make -C "$GITHUB_WORKSPACE/out-of-tree" \
+            KERNEL_SRC="$GITHUB_WORKSPACE/linux-${KVER}" \
+            KVERSION="${KVER}" \
             CONFIG_NTFS_FS=m \
             CONFIG_NTFS_FS_POSIX_ACL=y \
-            CFLAGS_MODULE='-include linux/version.h' \
-            modules
+            CFLAGS_MODULE='-include linux/version.h'
           test -f "$GITHUB_WORKSPACE/out-of-tree/ntfs.ko"
