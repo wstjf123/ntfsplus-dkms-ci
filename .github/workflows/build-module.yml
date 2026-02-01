@@ -28,7 +28,19 @@ jobs:
         run: |
           set -euo pipefail
           KVER='${{ matrix.kernel }}'
-          wget -qO "linux-${KVER}.tar.xz" "https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-${KVER}.tar.xz"
+          OUT="linux-${KVER}.tar.xz"
+          URLS=(
+            "https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-${KVER}.tar.xz"
+            "https://mirrors.edge.kernel.org/pub/linux/kernel/v6.x/linux-${KVER}.tar.xz"
+          )
+          rm -f "${OUT}"
+          for url in "${URLS[@]}"; do
+            echo "Downloading ${url}"
+            if curl -fL --retry 5 --retry-all-errors --connect-timeout 20 --max-time 900 -o "${OUT}" "${url}"; then
+              break
+            fi
+          done
+          test -s "${OUT}"
 
       - name: Prepare kernel tree (modules_prepare)
         run: |
