@@ -47,5 +47,6 @@ jobs:
             M="$GITHUB_WORKSPACE/out-of-tree" \
             CONFIG_NTFS_FS=m \
             CONFIG_NTFS_FS_POSIX_ACL=y \
+            CFLAGS_MODULE='-include linux/version.h' \
             modules
           test -f "$GITHUB_WORKSPACE/out-of-tree/ntfs.ko"
