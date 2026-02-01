@@ -61,5 +61,6 @@ jobs:
             KVERSION="${KVER}" \
             CONFIG_NTFS_FS=m \
             CONFIG_NTFS_FS_POSIX_ACL=y \
+            KBUILD_MODPOST_WARN=1 \
             CFLAGS_MODULE='-include linux/version.h'
           test -f "$GITHUB_WORKSPACE/out-of-tree/ntfs.ko"
