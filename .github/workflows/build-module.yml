@@ -55,7 +55,8 @@ jobs:
         run: |
           set -euo pipefail
           KVER='${{ matrix.kernel }}'
-          make -C "$GITHUB_WORKSPACE/out-of-tree" \
+          cd "$GITHUB_WORKSPACE/out-of-tree"
+          make \
             KERNEL_SRC="$GITHUB_WORKSPACE/linux-${KVER}" \
             KVERSION="${KVER}" \
             CONFIG_NTFS_FS=m \
