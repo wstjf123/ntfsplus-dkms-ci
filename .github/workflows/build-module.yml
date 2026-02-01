@@ -1,0 +1,51 @@
+name: build-module
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        kernel: ["6.12"]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            bc bison build-essential flex kmod libelf-dev libssl-dev \
+            python3 wget xz-utils
+
+      - name: Download Linux kernel source
+        run: |
+          set -euo pipefail
+          KVER='${{ matrix.kernel }}'
+          wget -qO "linux-${KVER}.tar.xz" "https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-${KVER}.tar.xz"
+
+      - name: Prepare kernel tree (modules_prepare)
+        run: |
+          set -euo pipefail
+          KVER='${{ matrix.kernel }}'
+          tar -xf "linux-${KVER}.tar.xz"
+          cd "linux-${KVER}"
+          make -j"$(nproc)" defconfig
+          make -j"$(nproc)" modules_prepare
+
+      - name: Build ntfs module
+        run: |
+          set -euo pipefail
+          KVER='${{ matrix.kernel }}'
+          make -C "linux-${KVER}" \
+            M="$GITHUB_WORKSPACE/out-of-tree" \
+            CONFIG_NTFS_FS=m \
+            CONFIG_NTFS_FS_POSIX_ACL=y \
+            modules
+          test -f "$GITHUB_WORKSPACE/out-of-tree/ntfs.ko"
